@@ -27,14 +27,14 @@ function PrepChroot() {
    # if alt-repo defined, disable everything, then install alt-repo
    if [[ ! -z ${REPORPM+xxx} ]]
    then
-      for FILE in ${CHROOT}/etc/yum.repos.d/*.repo
+      for FILE in $(rpm -ql centos-release | grep repos.d)
       do
          sed -i '{
 	    /^\[/{N
 	       s/\n/&enabled=0\n/
             }
 	    /^enabled=1/d
-         }' "${FILE}"
+         }' "${CHROOT}/${FILE}"
       done
       rpm --root ${CHROOT} -ivh --nodeps "${REPORPM}"
    fi
