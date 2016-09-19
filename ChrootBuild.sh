@@ -46,7 +46,7 @@ function PrepChroot() {
 ######################
 
 # See if we'e passed any valid flags
-OPTIONBUFR=$(getopt -o r:b: --long repouri:bonusrepos: -n ${PROGNAME} -- "$@")
+OPTIONBUFR=$(getopt -o r:b:e: --long repouri:bonusrepos:extras: -n ${PROGNAME} -- "$@")
 eval set -- "${OPTIONBUFR}"
 
 while [[ true ]]
@@ -74,6 +74,19 @@ do
 	       ;;
 	    *)
 	       BONUSREPO=${2}
+	       shift 2;
+	       ;;
+	 esac
+	 ;;
+      -e|--extras)
+         case "$2" in
+	    "")
+	       echo "Error: option required but not specified" > /dev/stderr
+	       shift 2;
+	       exit 1
+	       ;;
+	    *)
+	       EXTRARPMS=${2}
 	       shift 2;
 	       ;;
 	 esac
@@ -128,3 +141,12 @@ yum-utils \
 -libvirt-java-devel \
 -nc \
 -sendmail 
+
+# Install additionally-requested RPMs
+if [[ ! -z ${EXTRARPMS+xxx} ]]
+then
+   printf "##########\n## Installing requested RPMs/groups\n##########\n" 
+   ${YUMCMD} "${EXTRARPMS}"
+else
+   echo "No 'extra' RPMs requested" 
+fi
